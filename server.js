@@ -39,6 +39,25 @@ app.get("/users", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Get user by ID
+app.get("/users/:id", async (req, res) => {
+  try {
+    // Check if ID is valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Add a new user
 app.post("/users", async (req, res) => {
   try {
