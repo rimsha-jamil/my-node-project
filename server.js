@@ -30,7 +30,7 @@ app.get("/users", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Add a new user (extra useful route)
+// Add a new user 
 app.post("/users", async (req, res) => {
   try {
     const newUser = new User(req.body);
