@@ -17,4 +17,26 @@ async function registerUser({ name, phone, age, password }) {
   return { user, token };
 }
 
-module.exports = { registerUser };
+async function loginUser({ phone, password }) {
+  // 1. Check if user exists
+  const user = await User.findOne({ phone });
+  if (!user) throw new Error('User not found.');
+
+  // 2. Compare password with hashed password
+  const isMatch = await bcrypt.compare(password, user.passwordHash);
+  if (!isMatch) throw new Error('Invalid password.');
+
+  // 3. Generate JWT token
+  const token = jwt.sign(
+    { userId: user._id, phone: user.phone },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  return { user, token };
+}
+
+module.exports = { registerUser, loginUser };
+
+
+
