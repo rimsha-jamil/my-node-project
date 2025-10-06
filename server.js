@@ -12,7 +12,7 @@
 //   .then(() => console.log(":white_check_mark: MongoDB connected"))
 //   .catch((err) => {
 //     console.error(":x: MongoDB connection error:", err);
-   
+
 //     process.exit(1);
 //   });
 // // Define schema
@@ -119,47 +119,44 @@
 //   console.log(":rocket: Server running on http://localhost:" + PORT);
 // });
 
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
-
-
-
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const otpRoutes = require('./routes/otpRoutes');
-const locationRoutes = require('./routes/location');
-const nearbyRoutes = require('./routes/nearby');
+const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const otpRoutes = require("./routes/otpRoutes");
+const locationRoutes = require("./routes/location");
+const nearbyRoutes = require("./routes/nearby");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/otp', otpRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/users', locationRoutes);
-app.use('/api/users', nearbyRoutes);
-
-
+app.use("/api/auth", authRoutes);
+app.use("/api/otp", otpRoutes);
+app.use("/api/users", locationRoutes); // Specific routes first
+app.use("/api/users", nearbyRoutes); // Specific routes first
+app.use("/api/users", userRoutes); // Parameterized routes last
 
 // Default route
-app.get('/', (req, res) => res.send('Backend is working!'));
+app.get("/", (req, res) => res.send("Backend is working!"));
 
 // 404 handler
-app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
+app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
