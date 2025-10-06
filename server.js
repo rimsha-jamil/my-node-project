@@ -131,6 +131,8 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const otpRoutes = require('./routes/otpRoutes');
+const locationRoutes = require('./routes/location');
+const nearbyRoutes = require('./routes/nearby');
 
 const app = express();
 app.use(express.json());
@@ -148,6 +150,10 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/users', locationRoutes);
+app.use('/api/users', nearbyRoutes);
+
+
 
 // Default route
 app.get('/', (req, res) => res.send('Backend is working!'));

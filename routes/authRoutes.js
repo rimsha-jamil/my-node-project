@@ -11,7 +11,7 @@ router.post('/register', registerValidation, async (req, res) => {
 
   try {
     const { user, token } = await registerUser(req.body);
-    res.status(201).json({ message: 'User registered', user: { id: user._id, name: user.name, phone: user.phone, age: user.age }, token });
+    res.status(201).json({ message: 'User registered', user: { userId: user._id, name: user.name, phone: user.phone, age: user.age }, token });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       message: 'Login successful',
-      user: { id: user._id, name: user.name, phone: user.phone, age: user.age },
+      user: { userId: user._id, name: user.name, phone: user.phone, age: user.age },
       token
     });
   } catch (err) {
