@@ -38,25 +38,41 @@ router.get("/nearby", auth, async (req, res) => {
     }
 
     // Find users either in same city OR nearby
-    const nearbyOrSameCityUsers = await User.find({
+    // We need to do this in two separate queries because $near must be top-level
+    let nearbyOrSameCityUsers = [];
+
+    // First, find users in the same city (if city is set)
+    if (user.city) {
+      const sameCityUsers = await User.find({
+        _id: { $ne: user._id },
+        city: user.city,
+      }).select("name city location age phone createdAt");
+      nearbyOrSameCityUsers = nearbyOrSameCityUsers.concat(sameCityUsers);
+    }
+
+    // Then, find nearby users within radius
+    const nearbyUsers = await User.find({
       _id: { $ne: user._id },
-      $or: [
-        // Same city users (if city is set)
-        ...(user.city ? [{ city: user.city }] : []),
-        // Nearby users within radius
-        {
-          location: {
-            $near: {
-              $geometry: {
-                type: "Point",
-                coordinates: [parseFloat(lng), parseFloat(lat)],
-              },
-              $maxDistance: radius,
-            },
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [parseFloat(lng), parseFloat(lat)],
           },
+          $maxDistance: radius,
         },
-      ],
+      },
     }).select("name city location age phone createdAt");
+
+    // Combine and remove duplicates based on _id
+    const allUsers = [...nearbyOrSameCityUsers, ...nearbyUsers];
+    const uniqueUsers = allUsers.filter(
+      (user, index, self) =>
+        index ===
+        self.findIndex((u) => u._id.toString() === user._id.toString())
+    );
+
+    nearbyOrSameCityUsers = uniqueUsers;
 
     // Add distance calculation for nearby users
     const usersWithDistance = nearbyOrSameCityUsers.map((userDoc) => {
